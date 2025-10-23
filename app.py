@@ -15,11 +15,11 @@ except Exception:
 import google.generativeai as genai
 
 load_dotenv()
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = os.getenv("API_key")
 
 if not API_KEY:
     st.set_page_config(page_title="Freddy - missing API key")
-    st.warning("GOOGLE_API_KEY not found in environment. Put it in a .env file before using the model.")
+    st.warning("API_key not found in environment. Put it in a .env file before using the model.")
 else:
     genai.configure(api_key=API_KEY)
 
@@ -142,7 +142,7 @@ with st.sidebar:
     )
 
     if API_KEY is None:
-        st.info("API key missing — add GOOGLE_API_KEY to .env to enable model calls")
+        st.info("API key missing — add API_key to .env to enable model calls")
     else:
         st.success("API key loaded")
 
@@ -195,4 +195,19 @@ if ask:
     else:
         if re.search(r"\b(bye|exit|quit|goodbye)\b", raw, flags=re.I):
             farewell = "Goodbye! If you want to start again, press Clear chat."
-            st.session_st_
+            st.session_state.history.append({'role': 'assistant', 'content': farewell, 'is_code': False})
+            st.info(farewell)
+        else:
+            prompt = build_prompt_from_history(raw, st.session_state.mode)
+            with st.spinner("Freddy is thinking..."):
+                try:
+                    reply_text = call_model(prompt)
+                except Exception as e:
+                    reply_text = f"Error: {e}"
+
+            is_code = is_code_like(reply_text)
+            st.session_state.history.append({'role': 'user', 'content': raw, 'is_code': False})
+            st.session_state.history.append({'role': 'assistant', 'content': reply_text, 'is_code': is_code})
+
+            trim_history()
+            st.rerun()
