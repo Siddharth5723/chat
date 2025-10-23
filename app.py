@@ -18,7 +18,7 @@ load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not API_KEY:
-    st.set_page_config(page_title="QUERY_BOT - missing API key")
+    st.set_page_config(page_title="Freddy - missing API key")
     st.warning("GOOGLE_API_KEY not found in environment. Put it in a .env file before using the model.")
 else:
     genai.configure(api_key=API_KEY)
@@ -121,8 +121,8 @@ def synthesize_speech_bytes(text: str, lang: str = 'en') -> bytes:
 
 # Streamlit UI
 
-st.set_page_config(page_title="QUERY_BOT (Upgraded)", layout="wide")
-st.title("QUERY_BOT — upgraded")
+st.set_page_config(page_title="Freddy (Upgraded)", layout="wide")
+st.title("Freddy — upgraded")
 
 with st.sidebar:
     st.header("Settings")
@@ -173,7 +173,7 @@ with chat_col:
                 st.chat_message('assistant').write(entry['content'])
 
 with control_col:
-    st.subheader("Ask the bot")
+    st.subheader("Ask Freddy")
     user_input = st.text_input("Input", key='user_input')
     ask = st.button("Ask")
 
@@ -195,53 +195,4 @@ if ask:
     else:
         if re.search(r"\b(bye|exit|quit|goodbye)\b", raw, flags=re.I):
             farewell = "Goodbye! If you want to start again, press Clear chat."
-            st.session_state.history.append({'role':'user', 'content': raw})
-            st.session_state.history.append({'role':'assistant', 'content': farewell, 'is_code': False})
-            trim_history()
-            st.rerun()
-        else:
-            st.session_state.history.append({'role':'user', 'content': raw})
-            trim_history()
-            prompt = build_prompt_from_history(raw, st.session_state.mode)
-
-            with st.spinner("Generating response..."):
-                try:
-                    reply_text = call_model(prompt)
-                except Exception as e:
-                    err_msg = f"Model call failed: {e}"
-                    st.session_state.history.append({'role':'assistant', 'content': err_msg, 'is_code': False})
-                    st.error(err_msg)
-                    trim_history()
-                    st.rerun()
-
-            is_code = is_code_like(reply_text)
-            if '```' in reply_text:
-                parts = reply_text.split('```')
-                if len(parts) >= 3:
-                    code_candidate = parts[1]
-                    cleaned = code_candidate.strip()
-                    remainder = '\n'.join([p.strip() for p in parts[2:]]).strip()
-                    if remainder:
-                        final_assistant_content = f"```\n{cleaned}\n```\n\n{remainder}"
-                    else:
-                        final_assistant_content = f"```\n{cleaned}\n```"
-                else:
-                    final_assistant_content = reply_text.strip()
-            else:
-                final_assistant_content = reply_text.strip()
-
-            if is_code and '```' not in final_assistant_content:
-                final_assistant_content = f"```\n{final_assistant_content}\n```"
-
-            st.session_state.history.append({'role':'assistant', 'content': final_assistant_content, 'is_code': is_code})
-            trim_history()
-
-            if st.session_state.tts:
-                try:
-                    mp3_bytes = synthesize_speech_bytes(re.sub(r'```', '', final_assistant_content))
-                    st.audio(mp3_bytes, format='audio/mp3')
-                except Exception as e:
-                    st.error(f"TTS error: {e}")
-
-            st.session_state['user_input'] = ''
-            st.rerun()
+            st.session_st_
