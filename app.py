@@ -6,19 +6,13 @@ import json
 import re
 import time
 
-# Optional: TTS
 try:
     from gtts import gTTS
     _GTTS_AVAILABLE = True
 except Exception:
     _GTTS_AVAILABLE = False
 
-# Google Gemini SDK
 import google.generativeai as genai
-
-# ----------------------
-# Helper / Initialization
-# ----------------------
 
 load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -34,7 +28,7 @@ try:
 except Exception:
     model = None
 
-# Initialize session state
+# Initializing session state
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -47,9 +41,7 @@ if 'max_pairs' not in st.session_state:
 if 'tts' not in st.session_state:
     st.session_state.tts = False
 
-# ----------------------
 # Utility functions
-# ----------------------
 
 def trim_history():
     max_entries = st.session_state.max_pairs * 2
@@ -127,9 +119,7 @@ def synthesize_speech_bytes(text: str, lang: str = 'en') -> bytes:
     mp3_fp.seek(0)
     return mp3_fp.read()
 
-# ----------------------
 # Streamlit UI
-# ----------------------
 
 st.set_page_config(page_title="QUERY_BOT (Upgraded)", layout="wide")
 st.title("QUERY_BOT — upgraded")
@@ -196,9 +186,7 @@ with control_col:
     st.markdown("---")
     st.caption("Guards: empty input ignored; say 'bye' to end politely.")
 
-# ----------------------
 # Handle Ask button
-# ----------------------
 
 if ask:
     raw = st.session_state.get('user_input', '').strip()
